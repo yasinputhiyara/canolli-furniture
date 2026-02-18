@@ -4,7 +4,6 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// Routes
 app.get("/", (req, res) => {
   res.send("Welcome to Canolli Furniture API!");
 });
