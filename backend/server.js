@@ -1,16 +1,18 @@
-const express = require("express");
-const app = express();
+import express from "express"
+import dotenv from "dotenv"
+import connectDB from "./src/config/db.js";
 
-// Middleware
-app.use(express.json());
+dotenv.config();
 
-// Routes
+const app = express()
+const PORT = process.env.PORT || 4000;
+
+connectDB();
+
 app.get("/", (req, res) => {
-  res.send("Welcome to Canolli Furniture API!");
-});
+  res.send("Api running....")
+})
 
-// Start the server
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+  console.log(`Server running on port ${PORT}`)
+})
