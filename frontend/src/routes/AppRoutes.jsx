@@ -2,8 +2,9 @@ import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import MainLayout from "../layouts/MainLayout";
 import Shop from "../pages/Shop";
-import ProductDetails from "../pages/ProductDetail";
+import ProductDetails from "../pages/ProductDetails";
 import NotFound from "../pages/NotFound";
+import Cart from "../pages/Cart";
 const AppRoutes = () => {
   return (
     <Routes>
@@ -25,6 +26,14 @@ const AppRoutes = () => {
       <Route path="/product/:id" element= { 
         <MainLayout>
             <ProductDetails />
+        </MainLayout>
+        } />
+
+
+         {/* Product Details Route */}
+      <Route path="/cart" element= { 
+        <MainLayout>
+            <Cart />
         </MainLayout>
         } />
 
