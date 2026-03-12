@@ -1,24 +1,37 @@
+import { useState, useEffect } from 'react';
+import { NavLink, Link } from 'react-router-dom';
+import './Navbar.css';
 
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+export default function Navbar({ cartCount = 0, dark = false }) {
+  const [scrolled, setScrolled] = useState(false);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-const Navbar = () => {
-  const {items} = useSelector((state)=> state.cart)
   return (
-    <nav style={{ padding: "20px", borderBottom: "1px solid #ddd" }}>
-      <h2>Canolli Furniture</h2>
-
-      <Link to='/shop' style={{marginRight:"20px"}}>
-      shop
+    <header className={`navbar${scrolled ? ' scrolled' : ''}${dark ? ' dark' : ''}`}>
+      <Link to="/" className="nav-logo">
+        <span className="nav-logo-name">Canolli<span>.</span></span>
+        <span className="nav-logo-sub">Wood Furniture · Nilambur, Kerala</span>
       </Link>
 
-      <Link to="/cart" >
-      Cart ({items.length})
-      </Link>
+      <ul className="nav-links">
+        <li><NavLink to="/">Home</NavLink></li>
+        <li><NavLink to="/shop">Shop</NavLink></li>
+        <li><NavLink to="/about">About</NavLink></li>
+        <li><NavLink to="/contact">Contact</NavLink></li>
+      </ul>
 
-    </nav>
+      <div className="nav-actions">
+        <Link to="/login" className="nav-btn-ghost">Sign In</Link>
+        <Link to="/cart" className="btn-cart" aria-label="Cart">
+          🛒
+          {cartCount > 0 && <span className="cart-dot">{cartCount}</span>}
+        </Link>
+      </div>
+    </header>
   );
-};
-
-export default Navbar;
+}

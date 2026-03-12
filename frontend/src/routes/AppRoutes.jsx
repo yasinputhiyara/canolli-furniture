@@ -5,40 +5,91 @@ import Shop from "../pages/Shop";
 import ProductDetails from "../pages/ProductDetails";
 import NotFound from "../pages/NotFound";
 import Cart from "../pages/Cart";
+import Checkout from "../pages/Checkout";
+import Orders from "../pages/Orders";
+import Login from "../pages/Login";
+import ProtectedRoute from "./ProtectedRoute";
+
 const AppRoutes = () => {
   return (
     <Routes>
-         {/* Home Route */}
-      <Route path="/" element= { 
-        <MainLayout>
+      {/* Home Route */}
+      <Route
+        path="/"
+        element={
+          <MainLayout>
             <Home />
-        </MainLayout>
-        } />
+          </MainLayout>
+        }
+      />
 
-       {/* Shop Route */} 
-      <Route path="/shop" element= { 
-        <MainLayout>
+      {/* Shop Route */}
+      <Route
+        path="/shop"
+        element={
+          <MainLayout>
             <Shop />
-        </MainLayout>
-        } />
+          </MainLayout>
+        }
+      />
 
-         {/* Product Details Route */}
-      <Route path="/product/:id" element= { 
-        <MainLayout>
+      {/* Product Details Route */}
+      <Route
+        path="/product/:id"
+        element={
+          <MainLayout>
             <ProductDetails />
-        </MainLayout>
-        } />
+          </MainLayout>
+        }
+      />
 
-
-         {/* Product Details Route */}
-      <Route path="/cart" element= { 
-        <MainLayout>
+      {/* cart Route */}
+      <Route
+        path="/cart"
+        element={
+          <MainLayout>
             <Cart />
-        </MainLayout>
-        } />
+          </MainLayout>
+        }
+      />
 
-        {/* 404 NOTFOUND  */}
-        <Route path="*" element={< NotFound />} />
+      {/* checkout Route */}
+
+      <Route
+        path="/checkout"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Checkout />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* order Details Route */}
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Orders />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Login Route */}
+      <Route
+        path="/login"
+        element={
+          <MainLayout>
+            <Login />
+          </MainLayout>
+        }
+      />
+
+      {/* 404 NOTFOUND  */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

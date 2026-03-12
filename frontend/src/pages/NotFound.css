@@ -1,0 +1,331 @@
+/* NotFoundPage.css */
+.nf-page {
+    padding-top: var(--nav-h);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: var(--cream);
+}
+
+.nf-page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: radial-gradient(ellipse 120% 80% at 50% 50%, transparent 20%, rgba(107, 62, 31, .03) 21%, transparent 22%), radial-gradient(ellipse 160% 110% at 50% 50%, transparent 42%, rgba(107, 62, 31, .02) 43%, transparent 44%);
+}
+
+.nf-content {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    width: 100%;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* 404 illustration */
+.illus {
+    position: relative;
+    margin-bottom: 2rem;
+    display: inline-block;
+}
+
+.four-zero-four {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(7rem, 18vw, 13rem);
+    font-weight: 900;
+    letter-spacing: -.06em;
+    line-height: 1;
+    color: transparent;
+    background: linear-gradient(155deg, var(--teak) 0%, var(--amber) 18%, var(--sand) 34%, var(--amber) 50%, var(--teak) 66%, var(--bark) 82%, var(--teak) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    background-size: 200% 200%;
+    animation: grain-shift 8s ease-in-out infinite alternate;
+    display: block;
+}
+
+.wood-chip {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50% 45% 50% 38%;
+    background: linear-gradient(135deg, var(--amber), var(--sand));
+    top: -16px;
+    right: -12px;
+    animation: wobble 4s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    box-shadow: 0 4px 16px rgba(107, 62, 31, .2);
+}
+
+@keyframes wobble {
+
+    0%,
+    100% {
+        transform: rotate(-8deg) translateY(0);
+    }
+
+    50% {
+        transform: rotate(5deg) translateY(-6px);
+    }
+}
+
+.dust {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--sand);
+    opacity: .35;
+    animation: float-dust 5s ease-in-out infinite;
+}
+
+.dust.d1 {
+    width: 6px;
+    height: 6px;
+    top: 10%;
+    left: 5%;
+}
+
+.dust.d2 {
+    width: 4px;
+    height: 4px;
+    top: 80%;
+    left: 12%;
+    animation-delay: .8s;
+}
+
+.dust.d3 {
+    width: 5px;
+    height: 5px;
+    top: 30%;
+    right: 8%;
+    animation-delay: 1.6s;
+}
+
+.dust.d4 {
+    width: 3px;
+    height: 3px;
+    top: 70%;
+    right: 5%;
+    animation-delay: 2.4s;
+}
+
+.dust.d5 {
+    width: 7px;
+    height: 7px;
+    top: 55%;
+    left: 3%;
+    animation-delay: 3.2s;
+}
+
+@keyframes float-dust {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    33% {
+        transform: translateY(-12px) rotate(120deg);
+    }
+
+    66% {
+        transform: translateY(4px) rotate(240deg);
+    }
+}
+
+/* Text */
+.nf-eyebrow {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .28em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    margin-bottom: .8rem;
+}
+
+.nf-eyebrow::before,
+.nf-eyebrow::after {
+    content: '';
+    width: 18px;
+    height: 1px;
+    background: var(--gold);
+}
+
+.nf-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--bark);
+    letter-spacing: -.02em;
+    line-height: 1.2;
+    margin-bottom: .9rem;
+}
+
+.nf-headline em {
+    font-style: italic;
+    color: var(--teak);
+}
+
+.nf-sub {
+    font-family: 'Libre Baskerville', serif;
+    font-style: italic;
+    font-size: .88rem;
+    color: var(--amber);
+    line-height: 1.8;
+    max-width: 480px;
+    margin: 0 auto 2rem;
+}
+
+/* Search */
+.nf-search {
+    display: flex;
+    gap: .5rem;
+    max-width: 420px;
+    margin: 0 auto 1.5rem;
+}
+
+.nf-search-in {
+    flex: 1;
+    padding: .72rem 1rem;
+    border: 1.5px solid var(--bmd);
+    border-radius: var(--radius);
+    font-size: .83rem;
+    color: var(--bark);
+    background: white;
+    outline: none;
+    transition: var(--tr);
+}
+
+.nf-search-in:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(184, 136, 60, .1);
+}
+
+.nf-search-in::placeholder {
+    color: rgba(160, 98, 42, .4);
+}
+
+.nf-search-btn {
+    padding: .72rem 1.2rem;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--bark);
+    color: var(--parch);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    transition: transform .18s;
+}
+
+.nf-search-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--teak);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .34s;
+}
+
+.nf-search-btn:hover::before {
+    transform: scaleX(1);
+}
+
+.nf-search-btn span {
+    position: relative;
+    z-index: 1;
+}
+
+.nf-divider {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0 auto 1.5rem;
+}
+
+/* Quick links */
+.ql-title {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--sand);
+    margin-bottom: 1rem;
+}
+
+.ql-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    max-width: 520px;
+    margin: 0 auto 2rem;
+}
+
+.ql-card {
+    background: white;
+    padding: 1.1rem .6rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background .2s;
+    text-decoration: none;
+    display: block;
+}
+
+.ql-card:hover {
+    background: var(--parch);
+}
+
+.ql-icon {
+    font-size: 1.2rem;
+    margin-bottom: .4rem;
+}
+
+.ql-label {
+    font-size: .7rem;
+    font-weight: 600;
+    color: var(--bark);
+}
+
+.ql-sub {
+    font-size: .58rem;
+    color: var(--sand);
+    margin-top: .1rem;
+}
+
+.nf-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.nf-err-code {
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgba(107, 62, 31, .2);
+}
