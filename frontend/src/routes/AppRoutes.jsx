@@ -9,6 +9,12 @@ import Checkout from "../pages/Checkout";
 import Orders from "../pages/Orders";
 import Login from "../pages/Login";
 import ProtectedRoute from "./ProtectedRoute";
+import AdminLogin from "../pages/admin/AdminLogin";
+import Dashboard from "../pages/admin/Dashboard";
+import Products from "../pages/admin/Products";
+import AddProduct from "../pages/admin/AddProduct";
+import EditProduct from "../pages/admin/EditProduct";
+import AdminRoute from "./AdminRoutes";
 
 const AppRoutes = () => {
   return (
@@ -90,6 +96,45 @@ const AppRoutes = () => {
 
       {/* 404 NOTFOUND  */}
       <Route path="*" element={<NotFound />} />
+
+      {/* ADMIN ROUTES */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+
+      <Route
+        path="/admin/dashboard"
+        element={
+          <AdminRoute>
+            <Dashboard />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/products"
+        element={
+          <AdminRoute>
+            <Products />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/products/add"
+        element={
+          <AdminRoute>
+            <AddProduct />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/products/edit/:id"
+        element={
+          <AdminRoute>
+            <EditProduct />
+          </AdminRoute>
+        }
+      />
     </Routes>
   );
 };
