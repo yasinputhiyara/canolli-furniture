@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
-import './NotFound.css';
+import '../styles/NotFound.css';
 
 const LINKS = [
   { href: '/', icon: '🏠', label: 'Home', sub: 'Back to start' },

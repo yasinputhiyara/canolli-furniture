@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 // import Navbar from '../components/Navbar';
 // import Footer from '../components/Footer';
 import { showToast } from '../components/layout/Toast';
-import './Shop.css';
+import '../styles/Shop.css';
 
 const PRODUCTS = [
   { id: 1, name: 'Royal Teak 3-Seater Sofa', cat: 'Sofas', price: '₹45,000', orig: '₹89,000', badge: 'Hot', stars: '★★★★★', reviews: 124, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=75&auto=format&fit=crop', inStock: true },

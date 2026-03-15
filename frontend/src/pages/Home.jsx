@@ -2,14 +2,11 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import { showToast } from '../components/layout/Toast';
-import './Home.css';
-
-const CATEGORIES = [
-  { name: 'Sofas & Seating', count: '48 pieces', img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80&auto=format&fit=crop', span: true },
-  { name: 'Beds & Storage', count: '32 pieces', img: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=800&q=80&auto=format&fit=crop' },
-  { name: 'Dining Sets', count: '24 pieces', img: 'https://images.unsplash.com/photo-1581428982868-e410dd047a90?w=800&q=80&auto=format&fit=crop' },
-  { name: 'Wardrobes', count: '19 pieces', img: 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=800&q=80&auto=format&fit=crop' },
-];
+import '../styles/Home.css';
+import ProductCard from '../components/product/ProductCard';
+import { useState, useEffect } from 'react';
+import { CATEGORIES } from '../constants/categories';
+import { getAllProducts } from '../services/productService';
 
 const PRODUCTS = [
   { id: 1, name: 'Royal Teak 3-Seater Sofa', cat: 'Sofas', price: '₹45,000', orig: '₹89,000', badge: 'Hot', stars: '★★★★★', reviews: 124, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=75&auto=format&fit=crop' },
@@ -21,6 +18,29 @@ const PRODUCTS = [
 const TICKER_ITEMS = ['GI Certified Nilambur Teak', 'Lifetime Warranty', '50,000+ Happy Customers', 'Free Delivery Above ₹10,000', 'Cash on Delivery Available', 'Expert Assembly Service', 'Eco-Responsible Sourcing'];
 
 export default function HomePage() {
+
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await getAllProducts();
+        setProducts(data.products); // depends on backend response
+      } catch (error) {
+        console.error("Error fetching products", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   return (
     <>
       {/* <Navbar dark /> */}
@@ -105,30 +125,8 @@ export default function HomePage() {
           <div className="sec-eyebrow">Bestsellers</div>
           <h2 className="sec-title" style={{ marginBottom: '2rem' }}>Most <em>Loved</em> Pieces</h2>
           <div className="prod-grid">
-            {PRODUCTS.map(p => (
-              <div className="prod-card" key={p.id}>
-                {p.badge && <div className={`prod-badge badge-${p.badge.toLowerCase()}`}>{p.badge}</div>}
-                <div className="prod-img-wrap">
-                  <img src={p.img} alt={p.name} loading="lazy" />
-                  <div className="prod-img-overlay" />
-                  <button className="btn-quick-wish" onClick={() => showToast('Added to wishlist!', '♡')}>♡</button>
-                </div>
-                <div className="prod-info">
-                  <div className="prod-cat">{p.cat}</div>
-                  <Link to={`/product/${p.id}`} className="prod-name">{p.name}</Link>
-                  <div className="prod-stars-row">
-                    <span className="prod-stars">{p.stars}</span>
-                    <span className="prod-reviews">({p.reviews})</span>
-                  </div>
-                  <div className="prod-bottom">
-                    <div>
-                      <span className="prod-price">{p.price}</span>
-                      <span className="prod-price-orig">{p.orig}</span>
-                    </div>
-                    <button className="prod-add-btn" onClick={() => showToast('Added to cart!', '🛒')}>+</button>
-                  </div>
-                </div>
-              </div>
+            {products.map(p => (
+              <ProductCard product={p} key={p.id} />
             ))}
           </div>
           <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
