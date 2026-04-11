@@ -632,21 +632,127 @@
     margin-top: .2rem;
 }
 
-@media (max-width:900px) {
+/* ══ RESPONSIVE ══ */
+@media (max-width: 1024px) {
     .product-section {
         grid-template-columns: 1fr;
     }
 
     .gallery-panel {
         position: static;
-        height: 380px;
+        height: 420px;
+    }
+
+    .info-panel {
+        padding: 2rem 2rem;
     }
 
     .desc-content {
         grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .delivery-items {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .breadcrumb-bar {
+        padding: 0.8rem 1.5rem;
+    }
+
+    .tabs-bar {
+        padding: 0 1.5rem;
+    }
+
+    .tab-content-wrap {
+        padding: 2rem 1.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .gallery-panel {
+        height: 320px;
+    }
+
+    .thumb-strip {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0.75rem;
+        height: auto;
+        max-height: 80px;
+    }
+
+    .thumb {
+        width: 58px;
+        height: 54px;
+        flex-shrink: 0;
+    }
+
+    .main-img-wrap {
+        flex: unset;
+        width: 100%;
+    }
+
+    .gallery-panel {
+        flex-direction: column-reverse;
+    }
+
+    .info-panel {
+        padding: 1.5rem 1rem;
+    }
+
+    .product-title {
+        font-size: 1.45rem;
+    }
+
+    .price-curr {
+        font-size: 1.6rem;
+    }
+
+    .cta-row {
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .btn-add-cart,
+    .btn-buy-now {
+        width: 100%;
+    }
+
+    .breadcrumb-bar {
+        padding: 0.7rem 1rem;
+        font-size: 0.55rem;
+    }
+
+    .tabs-bar {
+        padding: 0 1rem;
+        overflow-x: auto;
+        gap: 0;
+    }
+
+    .tab-btn {
+        padding: 0.85rem 1rem;
+        font-size: 0.65rem;
+        white-space: nowrap;
+    }
+
+    .tab-content-wrap {
+        padding: 1.5rem 1rem;
+    }
+
+    .desc-content {
+        gap: 1.5rem;
     }
 
     .delivery-items {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .rating-overview {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
     }
 }

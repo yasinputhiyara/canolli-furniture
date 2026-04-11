@@ -5,6 +5,11 @@ export const getAllProducts = async () => {
   return response.data;
 };
 
+export const getAdminProducts = async () => {
+  const response = await axiosInstance.get("/admin/products");
+  return response.data;
+};
+
 export const getProductById = async (id) => {
   const response = await axiosInstance.get(`/products/${id}`);
   return response.data;
@@ -16,19 +21,24 @@ export const getRelatedProducts = async (category) => {
 };
 
 export const deleteProduct = async (id) => {
-  const response = await axiosInstance.delete(`/products/${id}`);
+  const response = await axiosInstance.delete(`/admin/products/${id}`);
   return response.data;
 };
 
 export const createProduct = async (productData) => {
-  const response = await axiosInstance.post("/products", productData);
+  const response = await axiosInstance.post("/admin/products", productData);
   return response.data;
 };
 
 export const updateProduct = async (id, productData) => {
   const response = await axiosInstance.put(
-    `/products/${id}`,
+    `/admin/products/${id}`,
     productData
   );
+  return response.data;
+};
+
+export const getAllCategories = async () => {
+  const response = await axiosInstance.get("/categories");
   return response.data;
 };

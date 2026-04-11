@@ -1,0 +1,27 @@
+/* ── MAIN LAYOUT ── */
+.main-content {
+  min-height: 80vh;
+  padding: 0;
+}
+
+/* On mobile/tablet: add bottom padding so content doesn't hide behind the bottom nav */
+@media (max-width: 1024px) {
+  .main-content {
+    padding-bottom: 64px;
+  }
+
+  /* Also push footer above bottom nav */
+  .footer {
+    padding-bottom: calc(64px + 2rem) !important;
+  }
+
+  /* Move WhatsApp FAB above bottom nav */
+  .wa-fab {
+    bottom: calc(64px + 1rem) !important;
+  }
+
+  /* Move toast above bottom nav */
+  .toast-global {
+    bottom: calc(64px + 1rem) !important;
+  }
+}

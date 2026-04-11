@@ -5,8 +5,8 @@ import { showToast } from '../components/layout/Toast';
 import '../styles/Home.css';
 import ProductCard from '../components/product/ProductCard';
 import { useState, useEffect } from 'react';
-import { CATEGORIES } from '../constants/categories';
-import { getAllProducts } from '../services/productService';
+import { CATEGORIES as STATIC_CATEGORIES } from '../constants/categories';
+import { getAllProducts, getAllCategories } from '../services/productService';
 
 const PRODUCTS = [
   { id: 1, name: 'Royal Teak 3-Seater Sofa', cat: 'Sofas', price: '₹45,000', orig: '₹89,000', badge: 'Hot', stars: '★★★★★', reviews: 124, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=75&auto=format&fit=crop' },
@@ -20,13 +20,15 @@ const TICKER_ITEMS = ['GI Certified Nilambur Teak', 'Lifetime Warranty', '50,000
 export default function HomePage() {
 
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true)
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const data = await getAllProducts();
-        setProducts(data.products); // depends on backend response
+        const fetchedProducts = Array.isArray(data) ? data : data.products || [];
+        setProducts(fetchedProducts.length > 0 ? fetchedProducts : PRODUCTS);
       } catch (error) {
         console.error("Error fetching products", error);
       } finally {
@@ -34,7 +36,17 @@ export default function HomePage() {
       }
     };
 
+    const fetchCats = async () => {
+      try {
+        const data = await getAllCategories();
+        setCategories(data?.length > 0 ? data : STATIC_CATEGORIES);
+      } catch (error) {
+        setCategories(STATIC_CATEGORIES);
+      }
+    };
+
     fetchProducts();
+    fetchCats();
   }, []);
 
 
@@ -105,13 +117,13 @@ export default function HomePage() {
           <div className="sec-eyebrow">Our Collections</div>
           <h2 className="sec-title" style={{ marginBottom: '2rem' }}>Shop by <em>Category</em></h2>
           <div className="cat-grid">
-            {CATEGORIES.map((c, i) => (
+            {categories.map((c, i) => (
               <Link to="/shop" className={`cat-card${c.span ? ' cat-span' : ''}`} key={i}>
-                <img src={c.img} alt={c.name} className="cat-img" loading="lazy" />
+                <img src={c.bannerImage || c.img} alt={c.name} className="cat-img" loading="lazy" />
                 <div className="cat-vignette" />
                 <div className="cat-content">
                   <div className="cat-name">{c.name}</div>
-                  <div className="cat-count">{c.count}</div>
+                  <div className="cat-count">{c.productCount || c.count || 0}</div>
                 </div>
               </Link>
             ))}

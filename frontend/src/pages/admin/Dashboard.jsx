@@ -1,9 +1,12 @@
+import { useEffect, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
+import { getDashboardStats } from "../../services/adminService";
 
-const stats = [
+const STAT_META = [
   {
     label: "Total Revenue",
-    value: "₹4,82,500",
+    key: "totalRevenue",
+    format: (v) => `₹${Number(v ?? 0).toLocaleString("en-IN")}`,
     icon: "💰",
     iconClass: "stat-icon-gold",
     trend: "+12.5%",
@@ -12,7 +15,8 @@ const stats = [
   },
   {
     label: "Total Orders",
-    value: "56",
+    key: "totalOrders",
+    format: (v) => v ?? "—",
     icon: "📦",
     iconClass: "stat-icon-teak",
     trend: "+8.2%",
@@ -21,7 +25,8 @@ const stats = [
   },
   {
     label: "Total Products",
-    value: "120",
+    key: "totalProducts",
+    format: (v) => v ?? "—",
     icon: "🪑",
     iconClass: "stat-icon-green",
     trend: "+4",
@@ -30,7 +35,8 @@ const stats = [
   },
   {
     label: "Customers",
-    value: "340",
+    key: "totalUsers",
+    format: (v) => v ?? "—",
     icon: "👤",
     iconClass: "stat-icon-blue",
     trend: "+22",
@@ -71,12 +77,26 @@ const statusClass = {
 };
 
 export default function Dashboard() {
+  const [liveStats, setLiveStats] = useState({});
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getDashboardStats();
+        setLiveStats(data);
+      } catch (err) {
+        console.error("Dashboard stats error:", err);
+      }
+    };
+    fetchStats();
+  }, []);
+
   return (
     <AdminLayout title="Dashboard" breadcrumb="Admin / Dashboard">
 
       {/* ── STATS ── */}
       <div className="admin-stats-grid">
-        {stats.map((s, i) => (
+        {STAT_META.map((s, i) => (
           <div className={`admin-stat-card adm-au adm-d${i + 1}`} key={s.label}>
             <div className="admin-stat-card-header">
               <div className={`admin-stat-card-icon ${s.iconClass}`}>{s.icon}</div>
@@ -84,7 +104,7 @@ export default function Dashboard() {
                 {s.trendType === "up" ? "▲" : "▼"} {s.trend}
               </span>
             </div>
-            <div className="admin-stat-card-value">{s.value}</div>
+            <div className="admin-stat-card-value">{s.format(liveStats[s.key])}</div>
             <div>
               <div className="admin-stat-card-label">{s.label}</div>
               <div className="admin-stat-card-sub">{s.sub}</div>

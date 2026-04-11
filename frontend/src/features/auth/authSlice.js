@@ -1,7 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const userFromStorage = localStorage.getItem("user");
-const tokenFromStorage = localStorage.getItem("token");
+// Support both 'userToken' (current) and legacy 'token' key
+const tokenFromStorage =
+  localStorage.getItem("userToken") || localStorage.getItem("token");
 
 const initialState = {
   user: userFromStorage ? JSON.parse(userFromStorage) : null,
@@ -19,7 +21,7 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
 
       localStorage.setItem("user", JSON.stringify(action.payload.user));
-      localStorage.setItem("token", action.payload.token);
+      localStorage.setItem("userToken", action.payload.token);
     },
     logout: (state) => {
       state.user = null;
@@ -27,7 +29,8 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
 
       localStorage.removeItem("user");
-      localStorage.removeItem("token");
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("token"); // clean up legacy key
     },
   },
 });

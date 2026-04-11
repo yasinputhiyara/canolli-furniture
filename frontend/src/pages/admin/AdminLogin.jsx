@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { adminLogin } from "../../services/authService";
 import "../../styles/Admin.css";
 import "../../styles/globals.css";
 
@@ -16,16 +17,17 @@ export default function AdminLogin() {
     setError("");
     setLoading(true);
 
-    // Simulate short delay for UX
-    await new Promise((r) => setTimeout(r, 600));
-
-    if (email === "admin@canolli.com" && password === "123456") {
+    try {
+      const data = await adminLogin({ email, password });
       localStorage.setItem("admin", true);
+      localStorage.setItem("adminToken", data.token);
+      localStorage.setItem("adminData", JSON.stringify(data.user));
       navigate("/admin/dashboard");
-    } else {
-      setError("Invalid email or password. Please try again.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid email or password. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

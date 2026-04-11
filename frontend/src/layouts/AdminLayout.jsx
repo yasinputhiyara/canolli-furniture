@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/Admin.css";
 import "../styles/globals.css";
@@ -29,6 +30,20 @@ const navItems = [
 export default function AdminLayout({ children, title = "Dashboard", breadcrumb = "Admin / Dashboard" }) {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [adminUser, setAdminUser] = useState({ name: 'Admin', email: 'Super Admin' });
+
+  useEffect(() => {
+    const data = localStorage.getItem("adminData");
+    if (data) {
+      try {
+        const parsed = JSON.parse(data);
+        setAdminUser({ name: parsed.name || 'Admin', email: parsed.email || 'Super Admin' });
+      } catch (e) {
+        console.error("Failed to parse admin data", e);
+      }
+    }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("admin");
@@ -73,10 +88,10 @@ export default function AdminLayout({ children, title = "Dashboard", breadcrumb 
         {/* Footer */}
         <div className="admin-sidebar-footer">
           <div className="admin-sidebar-user">
-            <div className="admin-user-avatar">A</div>
+            <div className="admin-user-avatar">{adminUser.name.charAt(0).toUpperCase()}</div>
             <div className="admin-user-info">
-              <div className="admin-user-name">Admin</div>
-              <div className="admin-user-role">Super Admin</div>
+              <div className="admin-user-name">{adminUser.name}</div>
+              <div className="admin-user-role" style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)' }}>{adminUser.email}</div>
             </div>
             <button
               title="Logout"

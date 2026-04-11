@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AdminLayout from "../../layouts/AdminLayout";
-import { getAllProducts, deleteProduct } from "../../services/productService";
+import { getAdminProducts, deleteProduct } from "../../services/productService";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -12,7 +12,7 @@ export default function Products() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await getAllProducts();
+        const data = await getAdminProducts();
         setProducts(data.products || []);
       } catch (error) {
         console.error("Error fetching products", error);
@@ -131,7 +131,7 @@ export default function Products() {
                           <div>
                             <div className="admin-table-product-name">{p.name}</div>
                             {p.category && (
-                              <div className="admin-table-product-cat">{p.category}</div>
+                              <div className="admin-table-product-cat">{p.category.name || p.category}</div>
                             )}
                           </div>
                         </div>

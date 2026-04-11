@@ -12,6 +12,14 @@ const categorySchema = new mongoose.Schema(
       type: String,
       unique: true
     },
+    description: {
+      type: String,
+      default: ""
+    },
+    bannerImage: {
+      type: String,
+      default: ""
+    },
     isActive: {
       type: Boolean,
       default: true
