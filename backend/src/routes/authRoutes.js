@@ -14,12 +14,12 @@ router.get("/google", passport.authenticate("google", { scope: ["profile", "emai
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "http://localhost:5173/login", session: false }),
+  passport.authenticate("google", { failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:5173'}/login`, session: false }),
   (req, res) => {
     // Successful authentication, issue token and redirect.
-    if (!req.user) return res.redirect("http://localhost:5173/login?error=auth_failed");
+    if (!req.user) return res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/login?error=auth_failed`);
     const token = generateToken(req.user._id, req.user.role);
-    res.redirect(`http://localhost:5173/login?token=${token}&name=${encodeURIComponent(req.user.name)}`);
+    res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/login?token=${token}&name=${encodeURIComponent(req.user.name)}`);
   }
 );
 
