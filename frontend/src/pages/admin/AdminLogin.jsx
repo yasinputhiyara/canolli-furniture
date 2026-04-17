@@ -152,14 +152,6 @@ export default function AdminLogin() {
 
           </form>
 
-          <div className="admin-login-divider">
-            <span>Demo credentials</span>
-          </div>
-
-          <div className="admin-login-hint">
-            📧 <strong>admin@canolli.com</strong>&nbsp;·&nbsp;🔑 <strong>123456</strong>
-          </div>
-
         </div>
       </div>
 

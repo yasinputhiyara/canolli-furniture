@@ -1,11 +1,8 @@
 import axiosInstance from "./axiosInstance";
-import axios from "axios";
-
-const BASE = "http://localhost:5001/api/v1";
 
 // Public: get active testimonials (no auth needed)
 export const getPublicTestimonials = async () => {
-  const res = await axios.get(`${BASE}/testimonials`);
+  const res = await axiosInstance.get("/testimonials");
   return res.data;
 };
 

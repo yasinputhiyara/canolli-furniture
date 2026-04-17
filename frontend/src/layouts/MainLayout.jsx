@@ -15,7 +15,7 @@ const MainLayout = ({ children }) => {
 
       {/* ── Global WhatsApp FAB ── */}
       <a
-        href="https://wa.me/919400000000"
+        href="https://wa.me/919778520190"
         className="wa-fab-global"
         title="Chat on WhatsApp"
         target="_blank"
@@ -29,6 +29,6 @@ const MainLayout = ({ children }) => {
       </a>
     </>
   );
-};
+}; 
 
 export default MainLayout;

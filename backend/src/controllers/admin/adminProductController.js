@@ -46,7 +46,7 @@ export const addProduct = asyncHandler(async (req, res) => {
   let imageUrls = [];
   let videoUrls = [];
 
-  console.log("FILES:", req.files);
+
 
   if (req.files?.images) {
     for (const file of req.files.images) {

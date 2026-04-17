@@ -7,31 +7,28 @@ import {
   deleteCategory 
 } from "../../services/adminService";
 import { showToast } from "../../components/layout/Toast";
-import "../../styles/Admin.css"; // Reuse existing styles if possible or add basic table styling
+import "../../styles/Admin.css";
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCatId, setEditingCatId] = useState(null);
-  
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  useEffect(() => { fetchCategories(); }, []);
 
   const fetchCategories = async () => {
     try {
       setLoading(true);
       const data = await getAdminCategories();
-      setCategories(data);
-    } catch (error) {
+      setCategories(Array.isArray(data) ? data : []);
+    } catch {
       showToast("Failed to load categories", "❌");
     } finally {
       setLoading(false);
@@ -39,63 +36,47 @@ export default function Categories() {
   };
 
   const openAddModal = () => {
-    setName("");
-    setDescription("");
-    setFile(null);
-    setPreview(null);
-    setEditingCatId(null);
-    setIsModalOpen(true);
+    setName(""); setDescription(""); setFile(null); setPreview(null);
+    setEditingCatId(null); setIsModalOpen(true);
   };
 
   const openEditModal = (cat) => {
-    setName(cat.name);
-    setDescription(cat.description || "");
-    setFile(null);
-    setPreview(cat.bannerImage || null);
-    setEditingCatId(cat._id);
-    setIsModalOpen(true);
+    setName(cat.name); setDescription(cat.description || "");
+    setFile(null); setPreview(cat.bannerImage || null);
+    setEditingCatId(cat._id); setIsModalOpen(true);
   };
 
   const handleImageChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
+    const f = e.target.files[0];
+    if (f) {
+      setFile(f);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-      };
-      reader.readAsDataURL(selectedFile);
+      reader.onloadend = () => setPreview(reader.result);
+      reader.readAsDataURL(f);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name) {
-      showToast("Category name is required", "❌");
-      return;
-    }
-
+    if (!name.trim()) { showToast("Category name is required", "❌"); return; }
     try {
       setIsSubmitting(true);
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("description", description);
-      if (file) {
-        formData.append("bannerImage", file);
-      }
+      const fd = new FormData();
+      fd.append("name", name);
+      fd.append("description", description);
+      if (file) fd.append("bannerImage", file);
 
       if (editingCatId) {
-        await updateCategory(editingCatId, formData);
+        await updateCategory(editingCatId, fd);
         showToast("Category updated successfully", "✅");
       } else {
-        await addCategory(formData);
+        await addCategory(fd);
         showToast("Category added successfully", "✅");
       }
-      
       setIsModalOpen(false);
       fetchCategories();
-    } catch (error) {
-      showToast(error?.response?.data?.message || "Operation failed", "❌");
+    } catch (err) {
+      showToast(err?.response?.data?.message || "Operation failed", "❌");
     } finally {
       setIsSubmitting(false);
     }
@@ -106,143 +87,223 @@ export default function Categories() {
     try {
       await deleteCategory(id);
       showToast("Category deleted", "🗑️");
-      setCategories(categories.filter(c => c._id !== id));
-    } catch (error) {
-      showToast(error?.response?.data?.message || "Failed to delete category", "❌");
+      setCategories(cats => cats.filter(c => c._id !== id));
+    } catch (err) {
+      showToast(err?.response?.data?.message || "Failed to delete", "❌");
     }
   };
 
+  const filtered = categories.filter(c =>
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <AdminLayout title="Categories" breadcrumb="Admin / Categories">
-      <div className="admin-page-header">
-        <div className="admin-page-search">
-          <input type="text" placeholder="Search categories..." />
+
+      {/* ── Toolbar ── */}
+      <div className="admin-toolbar">
+        <div>
+          <div className="admin-topbar-title" style={{ fontSize: "1rem" }}>Product Categories</div>
+          <div className="admin-topbar-breadcrumb">{categories.length} total categories</div>
         </div>
-        <button className="btn-admin-primary" onClick={openAddModal}>
-          + Add Category
-        </button>
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+          <div className="admin-search-wrap">
+            <span className="search-icon">🔍</span>
+            <input
+              className="admin-search"
+              type="text"
+              placeholder="Search categories…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+          <button className="adm-btn-primary" onClick={openAddModal}>
+            <span>+ Add Category</span>
+          </button>
+        </div>
       </div>
 
-      <div className="admin-card">
-        {loading ? (
-          <div style={{ padding: '2rem', textAlign: 'center' }}>Loading categories...</div>
-        ) : categories.length === 0 ? (
-          <div style={{ padding: '2rem', textAlign: 'center' }}>No categories found.</div>
-        ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Banner</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Products</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((cat) => (
-                <tr key={cat._id}>
-                  <td>
-                    {cat.bannerImage ? (
-                      <img src={cat.bannerImage} alt={cat.name} style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 4 }} />
-                    ) : (
-                      <div style={{ width: 50, height: 50, background: '#f0f0f0', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🏷️</div>
-                    )}
-                  </td>
-                  <td style={{ fontWeight: 600 }}>{cat.name}</td>
-                  <td>{cat.description || <span style={{color: '#999'}}>No description</span>}</td>
-                  <td>
-                     <span style={{ 
-                        background: 'rgba(184, 136, 60, 0.1)', 
-                        color: 'var(--gold, #b8883c)',
-                        padding: '4px 8px', 
-                        borderRadius: '100px', 
-                        fontWeight: 'bold', 
-                        fontSize: '0.8rem' 
-                     }}>
-                       {cat.productCount || 0}
-                     </span>
-                  </td>
-                  <td>
-                    <div className="admin-table-actions">
-                      <button className="btn-icon" onClick={() => openEditModal(cat)} title="Edit">✏️</button>
-                      <button className="btn-icon danger" onClick={() => handleDelete(cat._id)} title="Delete">🗑️</button>
-                    </div>
-                  </td>
+      {/* ── Table Panel ── */}
+      <div className="admin-panel">
+        <div className="admin-panel-header">
+          <div>
+            <div className="admin-panel-title">All Categories</div>
+            <div className="admin-panel-sub">Manage your furniture collections and categories</div>
+          </div>
+        </div>
+        <div className="admin-table-wrap">
+          {loading ? (
+            <div className="admin-loading">
+              <div className="admin-spinner" />
+              <span className="admin-loading-text">Loading categories…</span>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="admin-empty">
+              <div className="admin-empty-icon">🏷️</div>
+              <div className="admin-empty-title">No categories found</div>
+              <div className="admin-empty-desc">
+                {search ? `No results for "${search}"` : "Add your first category to get started."}
+              </div>
+              {!search && (
+                <button className="adm-btn-primary" onClick={openAddModal}>
+                  <span>+ Add Category</span>
+                </button>
+              )}
+            </div>
+          ) : (
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Banner</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Products</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {filtered.map(cat => (
+                  <tr key={cat._id}>
+                    <td>
+                      {cat.bannerImage ? (
+                        <img
+                          src={cat.bannerImage}
+                          alt={cat.name}
+                          className="admin-table-product-img"
+                          style={{ borderRadius: "8px" }}
+                        />
+                      ) : (
+                        <div className="admin-table-product-img-placeholder">🏷️</div>
+                      )}
+                    </td>
+                    <td>
+                      <div className="admin-table-product-name">{cat.name}</div>
+                    </td>
+                    <td style={{ maxWidth: 260 }}>
+                      <div style={{ fontSize: "0.82rem", color: "var(--adm-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 240 }}>
+                        {cat.description || <span style={{ opacity: 0.5, fontStyle: "italic" }}>No description</span>}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="adm-badge adm-badge-gold">
+                        {cat.productCount ?? 0} products
+                      </span>
+                    </td>
+                    <td>
+                      <div className="admin-table-actions">
+                        <button className="adm-btn-icon" title="Edit" onClick={() => openEditModal(cat)}>✏️</button>
+                        <button className="adm-btn-icon danger" title="Delete" onClick={() => handleDelete(cat._id)}>🗑️</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
-      {/* Modal */}
+      {/* ── Modal ── */}
       {isModalOpen && (
-        <div className="modal-overlay" style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000,
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <div className="modal-content" style={{ 
-            background: 'white', padding: '2rem', borderRadius: '8px', 
-            width: '100%', maxWidth: '500px',
-            maxHeight: '90vh', overflowY: 'auto'
+        <div
+          style={{
+            position: "fixed", inset: 0, zIndex: 1000,
+            background: "rgba(15, 9, 5, 0.6)",
+            backdropFilter: "blur(4px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: "1rem",
+            animation: "slideUp 0.25s ease"
+          }}
+          onClick={e => { if (e.target === e.currentTarget) setIsModalOpen(false); }}
+        >
+          <div style={{
+            background: "white",
+            borderRadius: "16px",
+            width: "100%",
+            maxWidth: "520px",
+            maxHeight: "90vh",
+            overflowY: "auto",
+            boxShadow: "0 24px 80px rgba(15, 9, 5, 0.2)"
           }}>
-            <h2 style={{ marginBottom: '1.5rem', fontFamily: 'Playfair Display, serif' }}>
-              {editingCatId ? 'Edit Category' : 'Add New Category'}
-            </h2>
-            
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div className="form-group">
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.85rem', color: '#555' }}>Category Name *</label>
-                <input 
-                  type="text" 
-                  value={name} 
-                  onChange={(e) => setName(e.target.value)} 
-                  required 
-                  style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '4px' }}
+            {/* Modal Header */}
+            <div style={{
+              padding: "1.75rem 2rem 1.25rem",
+              borderBottom: "1px solid var(--adm-border)",
+              display: "flex", alignItems: "center", justifyContent: "space-between"
+            }}>
+              <div>
+                <div className="admin-panel-title">
+                  {editingCatId ? "Edit Category" : "Add New Category"}
+                </div>
+                <div className="admin-panel-sub">Fill in the category details below</div>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                style={{
+                  width: 36, height: 36, borderRadius: "8px", border: "1px solid var(--adm-border)",
+                  background: "white", cursor: "pointer", fontSize: "1rem", color: "var(--adm-muted)",
+                  display: "flex", alignItems: "center", justifyContent: "center"
+                }}
+              >✕</button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleSubmit} style={{ padding: "1.75rem 2rem" }}>
+              {/* Name */}
+              <div className="admin-form-field" style={{ marginBottom: "1.25rem" }}>
+                <label className="admin-form-label">Category Name *</label>
+                <input
+                  className="admin-form-input"
+                  type="text"
+                  placeholder="e.g. Dining Sets"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  required
                 />
               </div>
 
-              <div className="form-group">
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.85rem', color: '#555' }}>Description</label>
-                <textarea 
-                  value={description} 
-                  onChange={(e) => setDescription(e.target.value)} 
+              {/* Description */}
+              <div className="admin-form-field" style={{ marginBottom: "1.25rem" }}>
+                <label className="admin-form-label">Description</label>
+                <textarea
+                  className="admin-form-input"
                   rows={3}
-                  style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '4px', resize: 'vertical' }}
+                  placeholder="Brief description of this collection…"
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  style={{ resize: "vertical" }}
                 />
               </div>
 
-              <div className="form-group">
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.85rem', color: '#555' }}>Banner Image</label>
-                <input 
-                  type="file" 
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  style={{ width: '100%', padding: '0.75rem', border: '1px dashed #ccc', borderRadius: '4px' }}
-                />
+              {/* Image Upload */}
+              <div className="admin-form-field" style={{ marginBottom: "1.5rem" }}>
+                <label className="admin-form-label">Banner Image</label>
+                <div className="admin-upload-area">
+                  <input type="file" accept="image/*" onChange={handleImageChange} />
+                  <div className="admin-upload-icon">🖼️</div>
+                  <div className="admin-upload-label">
+                    {file ? file.name : "Click or drag to upload"}
+                  </div>
+                  <div className="admin-upload-hint">JPG, PNG, WEBP – max 10 MB</div>
+                </div>
                 {preview && (
-                  <div style={{ marginTop: '1rem' }}>
-                    <p style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.5rem' }}>Preview:</p>
-                    <img src={preview} alt="Preview" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px' }} />
+                  <div style={{ marginTop: "1rem", borderRadius: "10px", overflow: "hidden", height: "140px" }}>
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
                   </div>
                 )}
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(false)}
-                  style={{ padding: '0.75rem 1.5rem', border: '1px solid #ddd', background: 'white', borderRadius: '4px', cursor: 'pointer' }}
-                >
+              {/* Actions */}
+              <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", paddingTop: "1rem", borderTop: "1px solid var(--adm-border)" }}>
+                <button type="button" className="adm-btn-secondary" onClick={() => setIsModalOpen(false)}>
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
-                  disabled={isSubmitting}
-                  style={{ padding: '0.75rem 1.5rem', border: 'none', background: 'var(--bark, #2c1f14)', color: 'white', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  {isSubmitting ? 'Saving...' : 'Save Category'}
+                <button type="submit" className="adm-btn-primary" disabled={isSubmitting}>
+                  <span>{isSubmitting ? "Saving…" : (editingCatId ? "Update Category" : "Save Category")}</span>
                 </button>
               </div>
             </form>

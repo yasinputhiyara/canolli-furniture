@@ -54,7 +54,7 @@ export default function Contact() {
                 <div className="info-icon">📞</div>
                 <div className="info-text">
                   <h3>Phone Number</h3>
-                  <p>+91 98765 43210</p>
+                  <p>+91 97785 20190</p>
                   <p className="info-sub">Mon - Sat: 9:00 AM - 7:00 PM</p>
                 </div>
               </div>
@@ -63,7 +63,7 @@ export default function Contact() {
                 <div className="info-icon">✉️</div>
                 <div className="info-text">
                   <h3>Email Address</h3>
-                  <p>hello@canolliwood.com</p>
+                  <p>yasinmuhammed332@gmail.com</p>
                   <p className="info-sub">We usually reply within 24 hours.</p>
                 </div>
               </div>
