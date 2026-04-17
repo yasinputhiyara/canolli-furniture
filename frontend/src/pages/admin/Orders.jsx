@@ -15,6 +15,7 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
+  const [activeTab, setActiveTab] = useState("active"); // "active" or "cancelled"
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -61,7 +62,20 @@ export default function Orders() {
     <AdminLayout>
       <div className="admin-orders-header">
         <h1>Order Management</h1>
-        <span className="order-count">{orders.length} orders</span>
+        <div className="order-tabs">
+          <button 
+            className={`order-tab ${activeTab === "active" ? "active" : ""}`}
+            onClick={() => setActiveTab("active")}
+          >
+            Active Orders ({orders.filter(o => o.orderStatus !== "cancelled").length})
+          </button>
+          <button 
+            className={`order-tab ${activeTab === "cancelled" ? "active" : ""}`}
+            onClick={() => setActiveTab("cancelled")}
+          >
+            Cancelled ({orders.filter(o => o.orderStatus === "cancelled").length})
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -70,7 +84,9 @@ export default function Orders() {
         <p className="empty-msg">No orders yet.</p>
       ) : (
         <div className="orders-list">
-          {orders.map((order) => {
+          {orders
+            .filter(o => activeTab === "active" ? o.orderStatus !== "cancelled" : o.orderStatus === "cancelled")
+            .map((order, index) => {
             const addr = order.shippingAddress || {};
             const isExpanded = expandedId === order._id;
             const statusColor = STATUS_COLORS[order.orderStatus] || "#888";
@@ -80,6 +96,9 @@ export default function Orders() {
               <div key={order._id} className={`order-row-card ${isExpanded ? "expanded" : ""}`}>
                 {/* Summary Row */}
                 <div className="order-summary-row" onClick={() => toggleExpand(order._id)}>
+                  <div className="ors-col ors-num">
+                    <span className="order-serial-no">{index + 1}</span>
+                  </div>
                   <div className="ors-col ors-id">
                     <span className="order-short-id">{shortId}</span>
                     <span className="order-date">{new Date(order.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</span>

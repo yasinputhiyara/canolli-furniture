@@ -83,8 +83,11 @@ export default function Navbar({ dark = false }) {
         </button>
 
         <Link to="/" className="nav-logo">
-          <span className="nav-logo-name">Canolli<span>.</span></span>
-          <span className="nav-logo-sub">Wood Furniture · Nilambur, Kerala</span>
+          <img src="/canollilogoBg.png" alt="Canolli Logo" className="nav-logo-img" />
+          <div className="nav-logo-text">
+            <span className="nav-logo-name">Canolli</span>
+            <span className="nav-logo-sub">Wood Furniture · Nilambur, Kerala</span>
+          </div>
         </Link>
 
         {/* Desktop nav links */}
@@ -159,8 +162,11 @@ export default function Navbar({ dark = false }) {
         {/* Drawer Header */}
         <div className="drawer-header">
           <Link to="/" className="nav-logo" onClick={() => setMobileMenuOpen(false)}>
-            <span className="nav-logo-name">Canolli<span>.</span></span>
-            <span className="nav-logo-sub">Wood Furniture · Nilambur</span>
+            <img src="/canollilogoBg.png" alt="Canolli Logo" className="nav-logo-img" />
+            <div className="nav-logo-text">
+              <span className="nav-logo-name">Canolli</span>
+              <span className="nav-logo-sub">Wood Furniture · Nilambur</span>
+            </div>
           </Link>
           <button className="drawer-close" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">✕</button>
         </div>

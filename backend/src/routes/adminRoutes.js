@@ -12,6 +12,18 @@ import {
 import { getAllUsers } from "../controllers/admin/adminUserController.js";
 import { getDashboardStats } from "../controllers/admin/adminDashboardController.js";
 import { getAllOrders, updateOrderStatus } from "../controllers/admin/adminOrderController.js";
+import {
+  createTestimonial,
+  getAllTestimonials,
+  updateTestimonial,
+  deleteTestimonial
+} from "../controllers/admin/adminTestimonialController.js";
+import {
+  createFaq,
+  getAllFaqs,
+  updateFaq,
+  deleteFaq
+} from "../controllers/admin/adminFaqController.js";
 
 const router = express.Router();
 
@@ -49,5 +61,17 @@ router.get("/stats", protect, adminOnly, getDashboardStats);
 
 router.get("/orders", protect, adminOnly, getAllOrders);
 router.put("/orders/:id/status", protect, adminOnly, updateOrderStatus);
+
+// Testimonial routes
+router.get("/testimonials", protect, adminOnly, getAllTestimonials);
+router.post("/testimonials", protect, adminOnly, upload.single("photo"), createTestimonial);
+router.put("/testimonials/:id", protect, adminOnly, upload.single("photo"), updateTestimonial);
+router.delete("/testimonials/:id", protect, adminOnly, deleteTestimonial);
+
+// FAQ routes
+router.get("/faqs", protect, adminOnly, getAllFaqs);
+router.post("/faqs", protect, adminOnly, createFaq);
+router.put("/faqs/:id", protect, adminOnly, updateFaq);
+router.delete("/faqs/:id", protect, adminOnly, deleteFaq);
 
 export default router;

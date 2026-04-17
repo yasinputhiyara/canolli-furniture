@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { showToast } from '../components/layout/Toast';
 import { getAllProducts, getAllCategories } from '../services/productService';
 import ProductCard from '../components/product/ProductCard';
+import SEOHead from '../components/SEOHead';
 import '../styles/Shop.css';
 
 const SORTS = ['Featured', 'Price: Low to High', 'Price: High to Low', 'Newest'];
 
 export default function ShopPage() {
-  const [activecat, setActiveCat] = useState('All');
+  const [searchParams] = useSearchParams();
+  const [activecat, setActiveCat] = useState(searchParams.get('category') || 'All');
   const [sort, setSort] = useState('Featured');
   const [search, setSearch] = useState('');
   const [maxPrice, setMaxPrice] = useState(200000);
@@ -47,6 +49,13 @@ export default function ShopPage() {
     fetchCats();
   }, []);
 
+  // Sync active category when URL query param changes
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    if (cat) setActiveCat(cat);
+    else setActiveCat('All');
+  }, [searchParams]);
+
   const filtered = products.filter(p => {
     const catName = p.category?.name || p.cat || 'General';
     const priceToCompare = p.discountPrice || p.price || 0;
@@ -69,6 +78,12 @@ export default function ShopPage() {
 
   return (
     <>
+      <SEOHead 
+        title="Shop Canolli Furniture | Premium Teak Collection"
+        description="Browse our complete collection of Nilambur teak furniture. From living room sets to dining tables and bedroom furniture. Filter by category and price."
+        url="/shop"
+        keywords="shop furniture, buy teak furniture online, sofas, beds, dining sets, canolli furniture shop"
+      />
       <div className="shop-shell">
         {/* ── HERO BAR ── */}
         <div className="shop-hero">

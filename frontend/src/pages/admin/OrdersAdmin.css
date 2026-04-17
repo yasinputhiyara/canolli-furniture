@@ -23,6 +23,40 @@
   font-weight: 500;
 }
 
+.order-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+  background: #f5f5f5;
+  padding: 0.3rem;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.order-tab {
+  border: none;
+  background: transparent;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #777;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.order-tab:hover {
+  color: #333;
+  background: rgba(0,0,0,0.03);
+}
+
+.order-tab.active {
+  background: white;
+  color: #c0a882;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
 .loading-msg,
 .empty-msg {
   text-align: center;
@@ -70,6 +104,13 @@
   min-width: 0;
 }
 
+.ors-num {
+  flex: 0.3;
+  max-width: 40px;
+  display: flex;
+  justify-content: center;
+}
+
 .ors-id {
   flex: 1.5;
 }
@@ -99,6 +140,20 @@
 .ors-toggle {
   flex: 0.3;
   text-align: center;
+}
+
+.order-serial-no {
+  width: 28px;
+  height: 28px;
+  background: #f8f6f2;
+  border: 1px solid #e8e0d5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #8a7b6a;
 }
 
 .order-short-id {

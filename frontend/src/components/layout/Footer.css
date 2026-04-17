@@ -13,6 +13,18 @@
     padding-bottom: 3rem;
     border-bottom: 1px solid rgba(184, 136, 60, .08);
 }
+.footer-brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+}
+
+.footer-logo-img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+}
 
 .footer-logo-name {
     font-family: 'Playfair Display', serif;
@@ -20,11 +32,12 @@
     font-weight: 700;
     color: var(--parch);
     letter-spacing: -.02em;
-    margin-bottom: .3rem;
 }
 
-.footer-logo-name span {
-    color: var(--gold);
+.footer-logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .footer-logo-sub {
@@ -34,7 +47,7 @@
     text-transform: uppercase;
     color: var(--sand);
     opacity: .6;
-    margin-bottom: 1rem;
+    margin-top: 2px;
 }
 
 .footer-tagline {

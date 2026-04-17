@@ -42,3 +42,19 @@ export const getAllCategories = async () => {
   const response = await axiosInstance.get("/categories");
   return response.data;
 };
+
+// ── Reviews ──
+export const getProductReviews = async (productId) => {
+  const response = await axiosInstance.get(`/products/${productId}/reviews`);
+  return response.data;
+};
+
+export const addProductReview = async (productId, reviewData) => {
+  const response = await axiosInstance.post(`/products/${productId}/reviews`, reviewData);
+  return response.data;
+};
+
+export const deleteProductReview = async (productId, reviewId) => {
+  const response = await axiosInstance.delete(`/products/${productId}/reviews/${reviewId}`);
+  return response.data;
+};

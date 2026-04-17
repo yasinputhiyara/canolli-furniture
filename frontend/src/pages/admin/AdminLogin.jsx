@@ -38,11 +38,7 @@ export default function AdminLogin() {
 
         {/* Brand */}
         <div className="admin-login-brand">
-          <div className="admin-login-brand-icon">🪑</div>
-          <div>
-            <div className="admin-login-brand-name">Canolli</div>
-            <div className="admin-login-brand-tag">Furniture Studio</div>
-          </div>
+          <img src="/canollilogoBg.png" alt="Canolli Logo" className="admin-login-logo-img" />
         </div>
 
         {/* Central copy */}

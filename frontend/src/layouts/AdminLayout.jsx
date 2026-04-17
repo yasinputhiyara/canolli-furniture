@@ -22,6 +22,8 @@ const navItems = [
     section: "Store",
     links: [
       { to: "/admin/categories", icon: "🏷️", label: "Categories" },
+      { to: "/admin/testimonials", icon: "💬", label: "Testimonials" },
+      { to: "/admin/faqs", icon: "❓", label: "FAQs" },
       { to: "/admin/settings", icon: "⚙️", label: "Settings" },
     ],
   },
@@ -58,11 +60,7 @@ export default function AdminLayout({ children, title = "Dashboard", breadcrumb 
 
         {/* Logo */}
         <div className="admin-sidebar-logo">
-          <div className="admin-sidebar-logo-icon">🪑</div>
-          <div className="admin-sidebar-logo-text">
-            <span className="admin-sidebar-logo-name">Canolli</span>
-            <span className="admin-sidebar-logo-sub">Admin Panel</span>
-          </div>
+          <img src="/canollilogoBg.png" alt="Canolli Logo" className="admin-logo-img" />
         </div>
 
         {/* Nav */}

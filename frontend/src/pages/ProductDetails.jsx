@@ -1,23 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
-import { getProductById, getRelatedProducts } from "../services/productService";
+import { getProductById, getRelatedProducts, getProductReviews, addProductReview, deleteProductReview } from "../services/productService";
 import { addToCartThunk } from "../features/cart/cartSlice";
 import { showToast } from "../components/layout/Toast";
 import ProductCard from '../components/product/ProductCard';
 import ProductSkeleton from '../components/ui/ProductSkeleton';
+import SEOHead from '../components/SEOHead';
 import '../styles/ProductDetailPage.css';
 
-const REVIEWS = [
-    { name: 'Arjun Menon', date: 'Jan 2025', rating: '★★★★★', text: 'Absolutely stunning quality. The teak is rich, heavy, and polished to perfection. Delivered and assembled in Malappuram within 5 days.', verified: true },
-    { name: 'Priya Nair', date: 'Dec 2024', rating: '★★★★★', text: 'Worth every rupee. We were worried about online furniture but Canolli exceeded expectations. Customer service was also excellent.', verified: true },
-];
 
 export default function ProductDetails() {
     const { id } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { isAuthenticated } = useSelector((state) => state.auth);
+    const { isAuthenticated, user: authUser } = useSelector((state) => state.auth);
 
     const [product, setProduct] = useState(null);
     const [relatedProducts, setRelatedProducts] = useState([]);
@@ -28,18 +25,26 @@ export default function ProductDetails() {
     const [activeTab, setActiveTab] = useState('description');
     const [wished, setWished] = useState(false);
 
-    // Zoom and Review state
+    // Zoom state
     const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center center', transform: 'scale(1)' });
+
+    // Review state
+    const [reviews, setReviews] = useState([]);
+    const [reviewsLoading, setReviewsLoading] = useState(false);
+    const [ratings, setRatings] = useState({ average: 0, count: 0 });
     const [reviewText, setReviewText] = useState('');
     const [reviewRating, setReviewRating] = useState(5);
+    const [reviewHover, setReviewHover] = useState(0);
+    const [submitting, setSubmitting] = useState(false);
+    const [hasReviewed, setHasReviewed] = useState(false);
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
                 setLoading(true);
                 const data = await getProductById(id);
-                setProduct(data.product || data); // handle both wrappers natively
-                window.scrollTo(0, 0); // scroll to top when opening a new detail page
+                setProduct(data.product || data);
+                window.scrollTo(0, 0);
             } catch (err) {
                 console.error("Error loading product", err);
             } finally {
@@ -48,6 +53,27 @@ export default function ProductDetails() {
         };
 
         fetchProduct();
+    }, [id]);
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                setReviewsLoading(true);
+                const data = await getProductReviews(id);
+                setReviews(data.reviews || []);
+                setRatings(data.ratings || { average: 0, count: 0 });
+                // Check if current user already reviewed
+                const userId = authUser?._id || authUser?.id;
+                if (userId) {
+                    setHasReviewed((data.reviews || []).some(r => r.user === userId || r.user?._id === userId));
+                }
+            } catch (err) {
+                console.error("Error loading reviews", err);
+            } finally {
+                setReviewsLoading(false);
+            }
+        };
+        fetchReviews();
     }, [id]);
 
     useEffect(() => {
@@ -108,8 +134,46 @@ export default function ProductDetails() {
 
     const activeCatName = product.category?.name || product.cat || 'Furniture';
 
+    // JSON-LD Product Schema
+    const productJsonLd = {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": product.name,
+      "image": imgs,
+      "description": product.description || `Premium ${activeCatName.toLowerCase()} crafted from Nilambur teak.`,
+      "sku": product.slug || product.sku || product._id,
+      "brand": {
+        "@type": "Brand",
+        "name": "Canolli Furniture"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": `https://www.canollifurniture.com/product/${id}`,
+        "priceCurrency": "INR",
+        "price": product.discountPrice ? product.discountPrice : product.price,
+        "itemCondition": "https://schema.org/NewCondition",
+        "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+      }
+    };
+
+    if (ratings.count > 0 || product.ratings?.count > 0) {
+      productJsonLd.aggregateRating = {
+        "@type": "AggregateRating",
+        "ratingValue": ratings.average > 0 ? ratings.average : product.ratings.average,
+        "reviewCount": ratings.count > 0 ? ratings.count : product.ratings.count
+      };
+    }
+
     return (
         <>
+            <SEOHead 
+                title={`${product.name} | Canolli Furniture`}
+                description={product.description?.substring(0, 155) + "..." || `Buy ${product.name} crafted from solid Nilambur teak. Premium ${activeCatName.toLowerCase()} with lifetime warranty.`}
+                url={`/product/${id}`}
+                image={imgs[0]}
+                type="product"
+                jsonLd={productJsonLd}
+            />
             <div className="product-shell">
                 <nav className="breadcrumb-bar">
                     <Link to="/">Home</Link><span>/</span>
@@ -159,9 +223,13 @@ export default function ProductDetails() {
                             <button className={`wish-btn${wished ? ' active' : ''}`} onClick={() => { setWished(!wished); showToast(wished ? 'Removed from wishlist' : 'Added to wishlist!', '♡'); }}>♡</button>
                         </div>
                         <div className="product-rating-row">
-                            <span className="p-stars">{'★'.repeat(Math.floor(product.rating || 5))}{'☆'.repeat(5 - Math.floor(product.rating || 5))}</span>
-                            <span className="p-rating-val">{product.rating || 4.8}</span>
-                            <span className="p-review-count">({product.reviews || 124} reviews)</span>
+                            <span className="p-stars">
+                                {[1,2,3,4,5].map(s => (
+                                    <span key={s} style={{ color: s <= Math.round(ratings.average || product.ratings?.average || 0) ? 'var(--sand)' : '#ddd' }}>★</span>
+                                ))}
+                            </span>
+                            <span className="p-rating-val">{ratings.average > 0 ? ratings.average.toFixed(1) : (product.ratings?.average || '—')}</span>
+                            <span className="p-review-count">({ratings.count ?? product.ratings?.count ?? 0} reviews)</span>
                         </div>
 
                         <div className="price-main">
@@ -244,7 +312,7 @@ export default function ProductDetails() {
                 <div className="tabs-bar">
                     {['description', 'reviews', 'delivery'].map(t => (
                         <button key={t} className={`tab-btn${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>
-                            {t.charAt(0).toUpperCase() + t.slice(1)}{t === 'reviews' ? ` (${product.reviews || 124})` : ''}
+                            {t.charAt(0).toUpperCase() + t.slice(1)}{t === 'reviews' ? ` (${ratings.count || 0})` : ''}
                         </button>
                     ))}
                 </div>
@@ -262,17 +330,117 @@ export default function ProductDetails() {
                     )}
                     {activeTab === 'reviews' && (
                         <div className="reviews-content">
-                            {REVIEWS.map((r, i) => (
-                                <div className="review-card" key={i}>
-                                    <div className="reviewer-row">
-                                        <span className="reviewer-name">{r.name}</span>
-                                        <span className="reviewer-date">{r.date}</span>
-                                        {r.verified && <span className="reviewer-verified">✓ Verified</span>}
-                                    </div>
-                                    <div style={{ color: 'var(--gold)', fontSize: '.75rem', margin: '.3rem 0' }}>{r.rating}</div>
-                                    <p className="review-text">{r.text}</p>
+                            {/* Rating Summary */}
+                            <div className="rating-summary">
+                                <div className="rating-big">{ratings.average > 0 ? ratings.average.toFixed(1) : '—'}</div>
+                                <div className="rating-stars-big">
+                                    {[1,2,3,4,5].map(s => (
+                                        <span key={s} style={{ color: s <= Math.round(ratings.average) ? 'var(--sand)' : '#ddd', fontSize: '1.5rem' }}>★</span>
+                                    ))}
                                 </div>
-                            ))}
+                                <div className="rating-count">{ratings.count || 0} review{ratings.count !== 1 ? 's' : ''}</div>
+                            </div>
+
+                            {/* Submit Form */}
+                            {isAuthenticated && !hasReviewed && (
+                                <div className="review-form">
+                                    <h3 className="review-form-title">Write a Review</h3>
+                                    <div className="star-picker">
+                                        {[1,2,3,4,5].map(s => (
+                                            <span
+                                                key={s}
+                                                className={`star-pick${(reviewHover || reviewRating) >= s ? ' active' : ''}`}
+                                                onMouseEnter={() => setReviewHover(s)}
+                                                onMouseLeave={() => setReviewHover(0)}
+                                                onClick={() => setReviewRating(s)}
+                                            >★</span>
+                                        ))}
+                                        <span className="star-pick-label">{['','Poor','Fair','Good','Great','Excellent'][reviewHover || reviewRating]}</span>
+                                    </div>
+                                    <textarea
+                                        className="review-textarea"
+                                        placeholder="Share your experience with this product..."
+                                        value={reviewText}
+                                        onChange={e => setReviewText(e.target.value)}
+                                        rows={4}
+                                    />
+                                    <button
+                                        className="review-submit-btn"
+                                        disabled={submitting}
+                                        onClick={async () => {
+                                            if (!reviewText.trim()) { showToast('Please write a comment', '⚠️'); return; }
+                                            setSubmitting(true);
+                                            try {
+                                                const res = await addProductReview(id, { rating: reviewRating, comment: reviewText });
+                                                setRatings(res.ratings);
+                                                // Refresh reviews
+                                                const fresh = await getProductReviews(id);
+                                                setReviews(fresh.reviews || []);
+                                                setHasReviewed(true);
+                                                setReviewText('');
+                                                showToast('Review submitted!', '⭐');
+                                            } catch (err) {
+                                                showToast(err?.response?.data?.message || 'Could not submit review', '❌');
+                                            } finally {
+                                                setSubmitting(false);
+                                            }
+                                        }}
+                                    >
+                                        {submitting ? 'Submitting…' : 'Submit Review'}
+                                    </button>
+                                </div>
+                            )}
+                            {isAuthenticated && hasReviewed && (
+                                <div className="review-already">✓ You have reviewed this product</div>
+                            )}
+                            {!isAuthenticated && (
+                                <div className="review-login-prompt">
+                                    <Link to={`/login?redirect=/product/${id}`}>Sign in</Link> to write a review
+                                </div>
+                            )}
+
+                            {/* Reviews List */}
+                            {reviewsLoading ? (
+                                <div className="reviews-loading">Loading reviews…</div>
+                            ) : reviews.length === 0 ? (
+                                <div className="reviews-empty">No reviews yet. Be the first to review this product!</div>
+                            ) : (
+                                reviews.map((r, i) => {
+                                    const userId = authUser?._id || authUser?.id;
+                                    const isOwn = userId && (r.user === userId || r.user?._id === userId);
+                                    return (
+                                        <div className="review-card" key={r._id || i}>
+                                            <div className="reviewer-row">
+                                                <div className="reviewer-avatar">{(r.name || 'U')[0].toUpperCase()}</div>
+                                                <div>
+                                                    <span className="reviewer-name">{r.name || 'Anonymous'}</span>
+                                                    <span className="reviewer-date">{r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : ''}</span>
+                                                </div>
+                                                {isOwn && (
+                                                    <button className="review-delete-btn" onClick={async () => {
+                                                        try {
+                                                            await deleteProductReview(id, r._id);
+                                                            const fresh = await getProductReviews(id);
+                                                            setReviews(fresh.reviews || []);
+                                                            setRatings(fresh.ratings || { average: 0, count: 0 });
+                                                            setHasReviewed(false);
+                                                            showToast('Review deleted', '🗑️');
+                                                        } catch (err) {
+                                                            showToast('Could not delete review', '❌');
+                                                        }
+                                                    }}>Delete</button>
+                                                )}
+                                            </div>
+                                            <div className="review-stars">
+                                                {[1,2,3,4,5].map(s => (
+                                                    <span key={s} style={{ color: s <= r.rating ? 'var(--sand)' : '#ddd' }}>★</span>
+                                                ))}
+                                            </div>
+                                            <p className="review-text">{r.comment}</p>
+                                        </div>
+                                    );
+                                })
+                            )}
                         </div>
                     )}
                     {activeTab === 'delivery' && (

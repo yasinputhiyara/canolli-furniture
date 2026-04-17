@@ -4,9 +4,14 @@ import Footer from '../components/layout/Footer';
 import { showToast } from '../components/layout/Toast';
 import '../styles/Home.css';
 import ProductCard from '../components/product/ProductCard';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CATEGORIES as STATIC_CATEGORIES } from '../constants/categories';
 import { getAllProducts, getAllCategories } from '../services/productService';
+import SEOHead from '../components/SEOHead';
+import { getPublicTestimonials } from '../services/testimonialService';
+import { getPublicFaqs } from '../services/faqService';
+import '../styles/Testimonials.css';
+import '../styles/Faq.css';
 
 const PRODUCTS = [
   { id: 1, name: 'Royal Teak 3-Seater Sofa', cat: 'Sofas', price: '₹45,000', orig: '₹89,000', badge: 'Hot', stars: '★★★★★', reviews: 124, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=75&auto=format&fit=crop' },
@@ -21,7 +26,34 @@ export default function HomePage() {
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
+  const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [activeFaq, setActiveFaq] = useState(null);
+  const [catActiveIndex, setCatActiveIndex] = useState(0);
+  const trackRef = useRef(null);
+  const catTrackRef = useRef(null);
+
+  const handleTestimonialScroll = () => {
+    if (!trackRef.current) return;
+    const scrollPos = trackRef.current.scrollLeft;
+    const cardWidth = trackRef.current.children[0]?.offsetWidth || 350;
+    const gap = 24;
+    const index = Math.round(scrollPos / (cardWidth + gap));
+    setActiveTestimonial(index);
+  };
+
+  const scrollToTestimonial = (index) => {
+    if (!trackRef.current) return;
+    const cardWidth = trackRef.current.children[0]?.offsetWidth || 350;
+    const gap = 24;
+    trackRef.current.scrollTo({
+      left: index * (cardWidth + gap),
+      behavior: 'smooth'
+    });
+    setActiveTestimonial(index);
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -47,6 +79,8 @@ export default function HomePage() {
 
     fetchProducts();
     fetchCats();
+    getPublicTestimonials().then(data => setTestimonials(data || [])).catch(() => {});
+    getPublicFaqs().then(data => setFaqs(data || [])).catch(() => {});
   }, []);
 
 
@@ -55,7 +89,12 @@ export default function HomePage() {
   }
   return (
     <>
-      {/* <Navbar dark /> */}
+      <SEOHead
+        title="Canolli Furniture | Premium Nilambur Teak Furniture – Kerala"
+        description="Shop GI-certified Nilambur teak furniture handcrafted by master artisans in Kerala. Sofas, beds, dining sets, wardrobes & more. Free delivery & lifetime warranty."
+        url="/"
+        keywords="teak furniture, Nilambur teak, Kerala furniture, wooden sofa, teak bed, dining table, wardrobe"
+      />
 
       {/* ── HERO ── */}
       <section className="hero">
@@ -77,10 +116,6 @@ export default function HomePage() {
           </p>
           <div className="hero-btns">
             <Link to="/shop" className="btn-primary"><span>Explore Collection →</span></Link>
-            <a href="https://wa.me/919400000000" className="btn-wa-hero" target="_blank" rel="noreferrer">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z" /></svg>
-              WhatsApp Us
-            </a>
           </div>
           <div className="hero-kpi">
             {[['100K+', 'Followers'], ['50K+', 'Customers'], ['15+', 'Years']].map(([n, l]) => (
@@ -91,15 +126,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-        <div className="hero-float-card">
-          <div className="hfc-label">Featured Piece</div>
-          <div className="hfc-name">Royal Teak 3-Seater Sofa Set</div>
-          <div className="hfc-row">
-            <span className="hfc-price">₹45,000</span>
-            <span className="hfc-orig">₹89,000</span>
-            <span className="hfc-badge">49% off</span>
-          </div>
-        </div>
+
       </section>
 
       {/* ── TICKER ── */}
@@ -111,21 +138,59 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── CATEGORIES ── */}
-      <section className="section" style={{ background: 'var(--cream)' }}>
-        <div style={{ maxWidth: '1160px', margin: '0 auto' }}>
-          <div className="sec-eyebrow">Our Collections</div>
-          <h2 className="sec-title" style={{ marginBottom: '2rem' }}>Shop by <em>Category</em></h2>
-          <div className="cat-grid">
+      {/* ── COLLECTIONS (circular carousel) ── */}
+      <section className="cat-carousel-section">
+        <div className="cat-carousel-inner">
+          <div className="cat-carousel-header">
+            <div>
+              <h2 className="cat-carousel-title">Our Collections</h2>
+              <p className="cat-carousel-sub">Each collection is built in our workshop — solid wood, traditional joints, no shortcuts.</p>
+            </div>
+            <Link to="/shop" className="cat-view-more">View All →</Link>
+          </div>
+
+          <div
+            className="cat-carousel-track"
+            ref={catTrackRef}
+            onScroll={() => {
+              if (!catTrackRef.current) return;
+              const el = catTrackRef.current;
+              const itemW = (el.children[0]?.offsetWidth || 160) + 32;
+              setCatActiveIndex(Math.round(el.scrollLeft / itemW));
+            }}
+          >
             {categories.map((c, i) => (
-              <Link to="/shop" className={`cat-card${c.span ? ' cat-span' : ''}`} key={i}>
-                <img src={c.bannerImage || c.img} alt={c.name} className="cat-img" loading="lazy" />
-                <div className="cat-vignette" />
-                <div className="cat-content">
-                  <div className="cat-name">{c.name}</div>
-                  <div className="cat-count">{c.productCount || c.count || 0}</div>
+              <Link
+                to={`/shop?category=${encodeURIComponent(c.name)}`}
+                className="cat-circle-item"
+                key={i}
+              >
+                <div className="cat-circle-img-wrap">
+                  <img
+                    src={c.bannerImage || c.img || `https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&q=75&auto=format&fit=crop`}
+                    alt={c.name}
+                    loading="lazy"
+                  />
                 </div>
+                <span className="cat-circle-name">{c.name}</span>
               </Link>
+            ))}
+          </div>
+
+          <div className="cat-carousel-dots">
+            {Array.from({ length: Math.max(1, categories.length - 3) }).map((_, i) => (
+              <button
+                key={i}
+                className={`cat-dot ${i === catActiveIndex ? 'active' : ''}`}
+                onClick={() => {
+                  if (!catTrackRef.current) return;
+                  const el = catTrackRef.current;
+                  const itemW = (el.children[0]?.offsetWidth || 160) + 32;
+                  el.scrollTo({ left: i * itemW, behavior: 'smooth' });
+                  setCatActiveIndex(i);
+                }}
+                aria-label={`Go to collection ${i + 1}`}
+              />
             ))}
           </div>
         </div>
@@ -182,11 +247,130 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── TESTIMONIALS ── */}
+      <section className="testimonials-section">
+        <div className="testimonials-inner">
+          <div className="testimonials-header">
+            <div className="testimonials-eyebrow">Our Valuable Customers</div>
+            <h2 className="testimonials-title">What They <em>Say About Us</em></h2>
+            <p className="testimonials-subtitle">
+              Real words from real homeowners across India who chose Canolli for their forever furniture.
+            </p>
+          </div>
+
+          {testimonials.length === 0 ? (
+            <div className="testimonials-empty">
+              <div className="testimonials-empty-icon">💬</div>
+              <p>Customer stories coming soon…</p>
+            </div>
+          ) : (
+            <>
+              <div className="testimonials-track" ref={trackRef} onScroll={handleTestimonialScroll}>
+                {testimonials.map(t => (
+                  <div className="testimonial-card" key={t._id}>
+                    <span className="testimonial-quote-icon">"</span>
+                    <div className="testimonial-stars">
+                      {[1,2,3,4,5].map(s => (
+                        <span key={s} className={`testimonial-star ${s <= t.rating ? 'filled' : ''}`}>★</span>
+                      ))}
+                    </div>
+                    <p className="testimonial-text">"{t.description}"</p>
+                    <div className="testimonial-customer">
+                      {t.photo ? (
+                        <img src={t.photo} alt={t.name} className="testimonial-avatar" />
+                      ) : (
+                        <div className="testimonial-avatar-placeholder">
+                          {t.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="testimonial-info">
+                        <div className="testimonial-name">{t.name}</div>
+                        {t.location && <div className="testimonial-location">📍 {t.location}</div>}
+                      </div>
+                      <div className="testimonial-verified">✓ Verified</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="testimonials-dots">
+                {testimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`testimonial-dot ${index === activeTestimonial ? 'active' : ''}`}
+                    onClick={() => scrollToTestimonial(index)}
+                    aria-label={`Go to testimonial ${index + 1}`}
+                  />
+                ))}
+              </div>
+
+              <div className="testimonials-summary">
+                <div className="tsum-item">
+                  <div className="tsum-num">{(testimonials.reduce((a, t) => a + t.rating, 0) / testimonials.length).toFixed(1)}</div>
+                  <div className="tsum-label">Average Rating</div>
+                </div>
+                <div className="tsum-divider" />
+                {/* <div className="tsum-item">
+                  <div className="tsum-num">{testimonials.length}+</div>
+                  <div className="tsum-label">Happy Reviews</div>
+                </div> */}
+                <div className="tsum-divider" />
+                <div className="tsum-item">
+                  <div className="tsum-num">50K+</div>
+                  <div className="tsum-label">Customers Served</div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* ── FAQ SECTION ── */}
+      <section className="faq-section">
+        <div className="faq-inner">
+          <div className="faq-header">
+            <span className="faq-eyebrow">Ordering Guide</span>
+            <h2 className="faq-title">Everything you need to know <em>before ordering</em></h2>
+          </div>
+
+          <div className="faq-list">
+            {faqs.length > 0 ? (
+              faqs.map((faq, index) => (
+                <div 
+                  key={faq._id} 
+                  className={`faq-item ${activeFaq === index ? 'active' : ''}`}
+                >
+                  <button 
+                    className="faq-question-btn"
+                    onClick={() => setActiveFaq(activeFaq === index ? null : index)}
+                  >
+                    <span>{faq.question}</span>
+                    <div className="faq-icon"></div>
+                  </button>
+                  <div className="faq-answer-wrap">
+                    <div className="faq-answer">
+                      {faq.answer}
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="faq-footer-text">FAQs coming soon...</div>
+            )}
+          </div>
+
+          <div className="faq-footer">
+            <p className="faq-footer-text">Still have questions? We're here to help you build your dream home.</p>
+            <Link to="/about" className="faq-contact-btn">
+              <span>Contact Support</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* <Footer /> */}
 
-      <a href="https://wa.me/919400000000" className="wa-fab" title="WhatsApp" target="_blank" rel="noreferrer">
-        <svg width="21" height="21" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z" /><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.559 4.118 1.531 5.848L0 24l6.343-1.512A11.935 11.935 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.021-1.38l-.36-.213-3.767.899.951-3.657-.235-.377A9.818 9.818 0 0112 2.182c5.427 0 9.818 4.391 9.818 9.818s-4.391 9.818-9.818 9.818z" /></svg>
-      </a>
+
     </>
   );
 }

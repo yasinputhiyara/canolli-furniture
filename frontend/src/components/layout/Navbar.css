@@ -29,8 +29,8 @@
 /* ── LOGO ── */
 .nav-logo {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    align-items: center;
+    gap: 8px;
     text-decoration: none;
 }
 
@@ -39,7 +39,6 @@
     font-size: 1.45rem;
     font-weight: 700;
     letter-spacing: -.02em;
-    line-height: 1;
     color: var(--bark);
 }
 
@@ -47,8 +46,16 @@
     color: var(--parch);
 }
 
-.nav-logo-name span {
-    color: var(--gold);
+.nav-logo-img {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+}
+
+.nav-logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .nav-logo-sub {
@@ -608,11 +615,7 @@
         height: 60px;
     }
 
-    .nav-logo-name {
-        font-size: 1.2rem;
-    }
-
-    .nav-logo-sub {
-        display: none;
+    .nav-logo-img {
+        height: 36px;
     }
 }

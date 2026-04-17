@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
+import AboutPage from "../pages/AboutPage";
 import MainLayout from "../layouts/MainLayout";
 import Shop from "../pages/Shop";
 import ProductDetails from "../pages/ProductDetails";
@@ -10,6 +11,7 @@ import Orders from "../pages/Orders";
 import ProfilePage from "../pages/ProfilePage";
 import OrderSuccess from "../pages/OrderSuccess";
 import Login from "../pages/Login";
+import Contact from "../pages/Contact";
 import ProtectedRoute from "./ProtectedRoute";
 import GuestRoute from "./GuestRoute";
 import AdminLogin from "../pages/admin/AdminLogin";
@@ -20,6 +22,8 @@ import EditProduct from "../pages/admin/EditProduct.jsx";
 import Users from "../pages/admin/Users.jsx";
 import AdminOrders from "../pages/admin/Orders.jsx";
 import Categories from "../pages/admin/Categories.jsx";
+import AdminTestimonials from "../pages/admin/Testimonials.jsx";
+import AdminFaqs from "../pages/admin/Faqs.jsx";
 import AdminRoute from "./AdminRoutes";
 import Toast from "../components/layout/Toast.jsx";
 
@@ -34,6 +38,27 @@ const AppRoutes = () => {
           element={
             <MainLayout>
               <Home />
+            </MainLayout>
+          }
+        />
+
+        
+        {/* About Route */}
+        <Route
+          path="/about"
+          element={
+            <MainLayout>
+              <AboutPage />
+            </MainLayout>
+          }
+        />
+
+        {/* Contact Route */}
+        <Route
+          path="/contact"
+          element={
+            <MainLayout>
+              <Contact />
             </MainLayout>
           }
         />
@@ -193,6 +218,24 @@ const AppRoutes = () => {
           element={
             <AdminRoute>
               <Categories />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/testimonials"
+          element={
+            <AdminRoute>
+              <AdminTestimonials />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/faqs"
+          element={
+            <AdminRoute>
+              <AdminFaqs />
             </AdminRoute>
           }
         />

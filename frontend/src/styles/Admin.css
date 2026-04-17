@@ -68,42 +68,18 @@
   border-bottom: 1px solid var(--adm-sidebar-border);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
 }
 
-.admin-sidebar-logo-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--adm-gold) 0%, var(--adm-teak) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  flex-shrink: 0;
+.admin-logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
 }
 
-.admin-sidebar-logo-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.admin-sidebar-logo-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #FFFFFF;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-}
-
-.admin-sidebar-logo-sub {
-  font-size: 0.6rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--adm-gold);
-  margin-top: 2px;
+.admin-login-logo-img {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
 }
 
 /* ── SIDEBAR NAV ── */
@@ -825,45 +801,63 @@
   grid-column: 1 / -1;
 }
 
-.admin-label {
+.admin-label,
+.admin-form-label {
+  display: block;
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--adm-teak);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+  margin-bottom: 0.5rem;
 }
 
 .admin-input,
+.admin-textarea,
 .admin-select,
-.admin-textarea {
-  padding: 0.72rem 0.9rem;
+.admin-form-input {
+  width: 100%;
+  padding: 0.8rem 1rem;
   border-radius: var(--adm-radius-sm);
   border: 1.5px solid var(--adm-border);
-  background: white;
-  font-size: 0.875rem;
-  color: var(--adm-ink);
-  transition: var(--adm-tr);
+  background: #FFF;
+  font-size: 0.9rem;
+  color: var(--adm-bark);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
   font-family: 'Inter', sans-serif;
-  width: 100%;
+  box-shadow: inset 0 1px 2px rgba(107, 62, 31, 0.03);
+}
+
+.admin-input:hover,
+.admin-textarea:hover,
+.admin-select:hover,
+.admin-form-input:hover {
+  border-color: rgba(184, 136, 60, 0.4);
+  background: #FEFCFA;
 }
 
 .admin-input:focus,
+.admin-textarea:focus,
 .admin-select:focus,
-.admin-textarea:focus {
+.admin-form-input:focus {
   border-color: var(--adm-gold);
-  box-shadow: 0 0 0 3px rgba(184, 136, 60, 0.1);
+  background: #FFF;
+  box-shadow: 0 0 0 4px rgba(184, 136, 60, 0.1), inset 0 1px 2px rgba(107, 62, 31, 0.02);
+  transform: translateY(-1px);
 }
 
 .admin-input::placeholder,
-.admin-textarea::placeholder {
+.admin-textarea::placeholder,
+.admin-form-input::placeholder {
   color: var(--adm-muted);
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .admin-textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 120px;
+  line-height: 1.6;
 }
 
 .admin-select {
@@ -871,8 +865,70 @@
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238A7560' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.7rem center;
-  padding-right: 2rem;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+.admin-form-field {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+.admin-form-field:last-child {
+  margin-bottom: 0;
+}
+
+/* ── MODERN TOGGLE SWITCH ── */
+.admin-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+}
+
+.admin-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.admin-switch label {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #E2DDD5;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.admin-switch label:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-switch input:checked + label {
+  background-color: var(--adm-gold);
+}
+
+.admin-switch input:focus + label {
+  box-shadow: 0 0 1px var(--adm-gold);
+}
+
+.admin-switch input:checked + label:before {
+  transform: translateX(22px);
 }
 
 /* ── FILE UPLOAD ── */

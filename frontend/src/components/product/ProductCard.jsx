@@ -43,11 +43,21 @@ export default function ProductCard({ product }) {
           {name}
         </Link>
         
-        {/* Only show stars if valid */}
-        <div className="prod-stars-row">
-          <span className="prod-stars">{product.stars || '★★★★★'}</span>
-          <span className="prod-reviews">({product.reviews || Math.floor(Math.random() * 50) + 1})</span>
-        </div>
+        {/* Live rating from DB */}
+        {product.ratings?.count > 0 ? (
+          <div className="prod-stars-row pc-rating">
+            <span className="prod-stars pc-stars">
+              {[1,2,3,4,5].map(s => (
+                <span key={s} style={{ color: s <= Math.round(product.ratings.average) ? '#c89762' : '#ddd' }}>★</span>
+              ))}
+            </span>
+            <span className="prod-reviews">({product.ratings.count})</span>
+          </div>
+        ) : (
+          <div className="prod-stars-row pc-rating" style={{ color: '#bbb', fontSize: '0.75rem' }}>
+            No reviews yet
+          </div>
+        )}
         
         <div className="prod-bottom">
           <div>
